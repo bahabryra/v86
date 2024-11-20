@@ -63,6 +63,7 @@ list of emulated hardware:
 [Alpine Linux guest setup](tools/docker/alpine/) —
 [Arch Linux guest setup](docs/archlinux.md) —
 [Windows 2000/XP guest setup](docs/windows-xp.md) —
+[Windows 9x guest setup](docs/windows-9x.md) —
 [9p filesystem](docs/filesystem.md) —
 [Linux rootfs on 9p](docs/linux-9p-image.md) —
 [Profiling](docs/profiling.md) —
@@ -94,6 +95,7 @@ Here's an overview of the operating systems supported in v86:
 - Windows 1, 3.x, 95, 98, ME, NT and 2000 work reasonably well.
   - In Windows 2000 and higher the PC type has to be changed from ACPI PC to Standard PC
   - There are some known boot issues ([#250](https://github.com/copy/v86/issues/250), [#433](https://github.com/copy/v86/issues/433), [#507](https://github.com/copy/v86/issues/507), [#555](https://github.com/copy/v86/issues/555), [#620](https://github.com/copy/v86/issues/620), [#645](https://github.com/copy/v86/issues/645))
+  - See [Windows 9x guest setup](docs/windows-9x.md)
 - Windows XP, Vista and 8 work under certain conditions (see [#86](https://github.com/copy/v86/issues/86), [#208](https://github.com/copy/v86/issues/208))
   - See [Windows 2000/XP guest setup](docs/windows-xp.md)
 - Many hobby operating systems work.
@@ -152,7 +154,7 @@ for a full setup on Debian or
 The disk images for testing are not included in this repository. You can
 download them directly from the website using:
 
-`wget -P images/ https://i.copy.sh/{linux3.iso,linux.iso,linux4.iso,buildroot-bzimage.bin,openbsd-floppy.img,kolibri.img,windows101.img,os8.img,freedos722.img}`
+`wget -P images/ https://i.copy.sh/{linux3.iso,linux.iso,linux4.iso,buildroot-bzimage68.bin,openbsd-floppy.img,kolibri.img,windows101.img,os8.img,freedos722.img}`
 
 Run integration tests: `make tests`
 
@@ -207,6 +209,8 @@ repository under their own licenses:
 - [Berkeley SoftFloat](http://www.jhauser.us/arithmetic/SoftFloat.html) is included to precisely emulate 80-bit floating point numbers
 - [The jor1k project](https://github.com/s-macke/jor1k) for 9p, filesystem and uart drivers
 - [WinWorld](https://winworldpc.com/) sources of some old operating systems
+- [OS/2 Museum](https://www.os2museum.com/) sources of some old operating systems
+- [ArchiveOS](https://archiveos.org/) sources of several operating systems
 
 ## More questions?
 

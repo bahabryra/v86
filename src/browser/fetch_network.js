@@ -68,17 +68,29 @@ async function on_data_http(data)
         this.read = "";
 
         let first_line = headers[0].split(" ");
-        let target = new URL("http://host" + first_line[1]);
+        let target;
         if(/^https?:/.test(first_line[1])) {
+            // HTTP proxy
             target = new URL(first_line[1]);
         }
+        else {
+            target = new URL("http://host" + first_line[1]);
+        }
+        if(typeof window !== "undefined" && target.protocol === "http:" && window.location.protocol === "https:") {
+            // fix "Mixed Content" errors
+            target.protocol = "https:";
+        }
+
         let req_headers = new Headers();
         for(let i = 1; i < headers.length; ++i) {
-            let parts = headers[i].split(": ");
-            let key =  parts[0].toLowerCase();
-            let value = parts[1];
-            if( key === "host" ) target.host = value;
-            else if( key.length > 1 ) req_headers.set(parts[0], value);
+            const header = this.net.parse_http_header(headers[i]);
+            if(!header) {
+                console.warn('The request contains an invalid header: "%s"', headers[i]);
+                this.write(new TextEncoder().encode("HTTP/1.1 400 Bad Request\r\nContent-Length: 0"));
+                return;
+            }
+            if( header.key.toLowerCase() === "host" ) target.host = header.value;
+            else req_headers.append(header.key, header.value);
         }
 
         dbg_log("HTTP Dispatch: " + target.href, LOG_FETCH);
@@ -142,6 +154,41 @@ FetchNetworkAdapter.prototype.fetch = async function(url, options)
     }
 };
 
+FetchNetworkAdapter.prototype.parse_http_header = function(header)
+{
+    const parts = header.match(/^([^:]*):(.*)$/);
+    if(!parts) {
+        dbg_log("Unable to parse HTTP header", LOG_FETCH);
+        return;
+    }
+
+    const key = parts[1];
+    const value = parts[2].trim();
+
+    if(key.length === 0)
+    {
+        dbg_log("Header key is empty, raw header", LOG_FETCH);
+        return;
+    }
+    if(value.length === 0)
+    {
+        dbg_log("Header value is empty", LOG_FETCH);
+        return;
+    }
+    if(!/^[\w-]+$/.test(key))
+    {
+        dbg_log("Header key contains forbidden characters", LOG_FETCH);
+        return;
+    }
+    if(!/^[\x20-\x7E]+$/.test(value))
+    {
+        dbg_log("Header value contains forbidden characters", LOG_FETCH);
+        return;
+    }
+
+    return { key, value };
+};
+
 /**
  * @param {Uint8Array} data
  */
@@ -166,5 +213,6 @@ FetchNetworkAdapter.prototype.receive = function(data)
 
 if(typeof module !== "undefined" && typeof module.exports !== "undefined")
 {
+    // only for testing
     module.exports["FetchNetworkAdapter"] = FetchNetworkAdapter;
 }
